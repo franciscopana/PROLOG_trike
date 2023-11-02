@@ -3,7 +3,11 @@
 display_game(BoardState):-
     display_board(BoardState).
 
+print_turn(Player):-
+    name_of(Player, Name),
+    format('\nHey ~w, its your turn!\n', [Name]).
+
 game_cycle([BoardState, Player]):-
-    write('Player: '), write(Player), nl,
-    write('BoardState: '), write(BoardState), nl,
-    display_game(BoardState).
+    display_game(BoardState),
+    print_turn(Player),
+    get_move(BoardState, Player, Move).

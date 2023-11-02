@@ -15,8 +15,8 @@ choose_difficulty(Bot) :-
 % option(+N)
 % Main menu options. Each represents a game mode.
 option(1):-
-    write('Human vs. Human\n'),
-    get_name(player1), get_name(player2).
+    nl, write('Human vs. Human\n'), nl,
+    get_name(player1), nl, get_name(player2).
 option(2):-
     write('Human vs. Bot\n'),
     get_name(player1),
@@ -34,16 +34,18 @@ option(3):-
 choose_player(Player):-
     name_of(player1, Name1),
     name_of(player2, Name2),
-    format('Who starts playing?\n1 - ~a with UPPERCASE animals\n2 - ~a with lowercase animals\n', [Name1, Name2]),
+    nl,
+    format('Who starts playing?\n1 - ~a \n2 - ~a \n', [Name1, Name2]),
     get_option(1, 2, 'Select', Index),
     nth1(Index, [player1, player2], Player).
 
 % barca/0
 % Game header
 trike:-
-    write('=================\n'),
-    write('Welcome to Trike!\n'),
-    write('=================\n').
+    clear_console,
+    write('||======================||\n'),
+    write('||   Welcome to Trike!  ||\n'),
+    write('||======================||\n'), nl.
 
 % menu/0
 % Main menu
@@ -51,7 +53,7 @@ menu:-
     write('Please select game mode:\n'),
     write('1 - Human vs. Human\n'),
     write('2 - Human vs. Bot\n'),
-    write('3 - Bot vs. Bot\n').
+    write('3 - Bot vs. Bot\n\n').
 
 % set_mode/0
 % Game mode choice
@@ -63,7 +65,7 @@ set_mode :-
 % choose_board(-Size)
 % Board size choice
 choose_board(Size):-
-    write('Board size: 7, 8, 9? '),
+    nl, write('Board size: 7, 8, 9? '),
     repeat,
     read_number(Size),
     member(Size, [7,8,9]), !.
@@ -71,7 +73,6 @@ choose_board(Size):-
 
 init_state(Size, Board) :-
     init_state(Size, [], Board).
-
 init_state(0, Acc, Acc).
 init_state(Size, Acc, Board) :-
     Size > 0,
@@ -82,8 +83,9 @@ init_state(Size, Acc, Board) :-
 
 % configuration(-GameState)
 % Initialize GameState with Board, first Player, empty FearList and TotalMoves
-config([Board,p1]):-
+config([Board,Player]):-
     trike,
     set_mode,
-    choose_board(Size), 
+    choose_board(Size),
+    choose_player(Player),
     init_state(Size, Board).
