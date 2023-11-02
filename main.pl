@@ -2,5 +2,6 @@
 :- consult('./game.pl').
 
 play_game :-
+    clear_data,
     config(GameState),
-    game_cycle(GameState).
+    begin_game(GameState).

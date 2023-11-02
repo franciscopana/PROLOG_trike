@@ -1,5 +1,8 @@
 :- use_module(library(between)).
 
+clear_data :-
+    retractall(name_of(_,_)).
+
 % clear_buffer/0
 % Clears input buffer
 clear_buffer:-
@@ -52,15 +55,6 @@ get_option(Min,Max,Context,Value):-
     repeat,
     read_number(Value),
     between(Min, Max, Value), !.
-
-% get_move(+Board,-Coordinate)
-% Unifies Coordinate with a valid coordinate given by input within the Board
-get_move(Board, Col1-Row1-Col2-Row2):-
-    length(Board, Size),
-    get_option(1, Size, 'Origin column', Col1),
-    get_option(1, Size, 'Origin row', Row1),
-    get_option(1, Size, 'Destination column', Col2),
-    get_option(1, Size, 'Destination row', Row2).
 
 % replace(+Index,+Element,+List,-Result)
 % Unifies Result with the list resulting from replace the element at Index of List by Element

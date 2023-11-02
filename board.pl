@@ -30,8 +30,8 @@
 */
 
 state_char(empty, ' ').
-state_char(x, 'X').
-state_char(o, 'O').
+state_char(player1, 'X').
+state_char(player2, 'O').
 
 print_n(0, _).
 print_n(N, C):-
