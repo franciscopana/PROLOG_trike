@@ -7,34 +7,48 @@ other_player(player2,player1).
 display_game(BoardState):-
     display_board(BoardState).
 
-get_adjacent_pieces(BoardState, L, N, AdjacentPieces):-
+get_adjacent_pieces(BoardState, Letra, N, AdjacentPieces):-
+    length(BoardState, BoardSize),
+    /*Check if the Letra and N are inbound with the in_bounds function*/
+    char_code(Letra, L),
     L1 is L - 1,
     N1 is N - 1,
     L2 is L + 1,
     N2 is N + 1,
-    get_piece(BoardState, L1, N1, Piece1),
-    get_piece(BoardState, L1, N, Piece2),
+    
+
+    char_code(Letra1, L1),
+    char_code(Letra2, L2),
+    get_piece(BoardState, Letra1, N1, Piece1),
+    write('Piece1: '), write(Piece1), nl,
+    get_piece(BoardState, Letra1, N, Piece2),
+    write('Piece2: '), write(Piece2), nl,
     get_piece(BoardState, L, N2, Piece3),
-    get_piece(BoardState, L2, N2, Piece4),
-    get_piece(BoardState, L2, N, Piece5),
+    write('Piece3: '), write(Piece3), nl,
+    get_piece(BoardState, Letra2, N2, Piece4),
+    write('Piece4: '), write(Piece4), nl,
+    get_piece(BoardState, Letra2, N, Piece5),
+    write('Piece5: '), write(Piece5), nl,
     get_piece(BoardState, L, N1, Piece6),
-    append([Piece1, Piece2, Piece3, Piece4, Piece5, Piece6], AdjacentPieces).
+    write('Piece6: '), write(Piece6), nl,
+    append([Piece1, Piece2, Piece3, Piece4, Piece5, Piece6], AdjacentPieces),
+    write('Adjacent pieces: '), write(AdjacentPieces), nl.
 
 check_winner(BoardState, CurrX, CurrY, Winner):-
     get_piece(BoardState, CurrX, CurrY, Piece),
     get_adjacent_pieces(BoardState, CurrX, CurrY, AdjacentPieces),
     count(AdjacentPieces, player1, Player1Count),
     count(AdjacentPieces, player2, Player2Count),
-    /*sum 1 to the player equals Piece*/
-    (Piece = player1 -> Player1Count1 is Player1Count + 1 ; Player1Count1 is Player1Count),
-    (Piece = player2 -> Player2Count1 is Player2Count + 1 ; Player2Count1 is Player2Count),
-    /*wins who has the greater counter*/
-    (Player1Count1 > Player2Count1 -> Winner = player1 ; Winner = player2).
+    write('Player1 count: '), write(Player1Count), nl,
+    write('Player2 count: '), write(Player2Count), nl,
+    /*if player1 count == player2 count, the winner is Piece*/
+    (Player1Count > Player2Count -> Winner = player1
+    ; Player1Count < Player2Count -> Winner = player2
+    ; Winner = Piece).
 
 congratulate(Winner):-
     name_of(Winner, Name),
     format('\nCongratulations ~w, you won!', [Name]).
-
 
 game_over(BoardState, CurrX, CurrY, Winner):-
     write('Game Over!\n'),

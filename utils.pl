@@ -83,10 +83,10 @@ in_bounds(Row, Col, BoardSize):-
 
 get_piece(BoardState, Row1,Col1, Piece):-
     length(BoardState, BoardSize),
+    /*Check if the coordinates are inbound, otherwise return invalid Piece*/
     (in_bounds(Row1, Col1, BoardSize) ->
         true ;
-        Piece = invalid,
-        !
+        Piece = invalid
     ),
     char_code('A', ACode),
     char_code(Row1, RowCode),
