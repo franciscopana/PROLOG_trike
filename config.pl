@@ -70,7 +70,6 @@ choose_board(Size):-
     read_number(Size),
     member(Size, [7,8,9]), !.
 
-
 init_state(Size, Board) :-
     init_state(Size, [], Board).
 init_state(0, Acc, Acc).
@@ -83,9 +82,8 @@ init_state(Size, Acc, Board) :-
 
 % configuration(-GameState)
 % Initialize GameState with Board, first Player, empty FearList and TotalMoves
-config([Board,Player]):-
+config([Board,player1]):-
     trike,
     set_mode,
     choose_board(Size),
-    choose_player(Player),
     init_state(Size, Board).

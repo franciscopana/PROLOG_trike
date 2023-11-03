@@ -33,6 +33,7 @@ state_char(empty, ' ').
 state_char(player1, 'X').
 state_char(player2, 'O').
 
+
 print_n(0, _).
 print_n(N, C):-
     write(C),
