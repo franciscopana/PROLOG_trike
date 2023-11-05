@@ -3,8 +3,7 @@
 :- use_module(library(between)).
 
 clear_data :-
-    retractall(name_of(_,_)),
-    retractall(state_char(_,_)).
+    retractall(name_of(_,_)).
 
 % clear_buffer/0
 % Clears input buffer

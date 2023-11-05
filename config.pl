@@ -1,7 +1,5 @@
 :- consult(utils).
 
-:- dynamic state_char/2.
-
 % choose_difficulty(+Bot)
 % Choose Bot difficulty (1 or 2)
 choose_difficulty(Bot) :-
@@ -73,9 +71,6 @@ init_state(Size, Board) :-
     init_state(Size, [], Board).
 init_state(0, Acc, Acc).
 init_state(Size, Acc, Board) :-
-    asserta(state_char(empty, ' ')),
-    asserta(state_char(player1, 'X')),
-    asserta(state_char(player2, 'O')),
     Size > 0,
     length(Row, Size),
     maplist(=(empty), Row),

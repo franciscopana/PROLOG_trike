@@ -1,5 +1,9 @@
 :- consult(utils).
 
+state_char(empty, ' ').
+state_char(player1, 'X').
+state_char(player2, 'O').
+
 draw_up_line(0, _, _):-
     write('|'), nl.
 draw_up_line(N, Line, Column) :-
@@ -206,12 +210,3 @@ get_initial_move(Row-Col, BoardState, Player):-
         write('Invalid move. Please try again.\n'),
         fail
     ).
-
-reverse_board:-
-    state_char(player1, Player1Symbol),
-    state_char(player2, Player2Symbol),
-    retract(state_char(player1, Player1Symbol)),
-    retract(state_char(player2, Player2Symbol)),
-    asserta(state_char(player1, Player2Symbol)),
-    asserta(state_char(player2, Player1Symbol)),
-    write('Board reversed!').
