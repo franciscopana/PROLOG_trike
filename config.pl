@@ -10,7 +10,7 @@ choose_difficulty(Bot) :-
     write('1 - Random\n'),
     write('2 - Greedy\n'),
     get_option(1, 2, 'Difficulty', Option), !,
-    asserta((difficulty(Bot, Option))).
+    asserta((difficulty(Bot, 1))). %asserta((difficulty(Bot, Option)))
 
 % option(+N)
 % Main menu options. Each represents a game mode.

@@ -23,7 +23,7 @@ congratulate(Winner):-
 game_over(BoardState, CurrX, CurrY, Winner):-
     write('Game Over!\n'),
     check_winner(BoardState, CurrX, CurrY, Winner),
-    congratulate(Winner).
+    congratulate(Winner), nl,nl.
 
 game_cycle([BoardState, Player, CurrRow-CurrCol]):-
     display_game(BoardState),
@@ -34,7 +34,7 @@ game_cycle([BoardState, Player, CurrRow-CurrCol]):-
         print_curr_position(CurrRow-CurrCol),
         write('Possible moves: \n'),
         print_moves(Moves),
-        get_move(Row-Col, Moves),
+        get_move(Row-Col, Moves, Player),
         move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]),
         print_turn_after(Player, Row-Col),
         game_cycle([NewBoardState, NewPlayer, Row-Col])
@@ -61,7 +61,7 @@ print_question(Player, Answer):-
 begin_game([BoardState, Player]):-
     display_game(BoardState),
     print_turn_before(Player),
-    get_inicial_move(Row-Col, BoardState),
+    get_initial_move(Row-Col, BoardState, Player),
     move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]),
     print_turn_after(Player, Row-Col),
     game_cycle([NewBoardState, NewPlayer, Row-Col]).

@@ -211,7 +211,18 @@ get_moves(BoardState, Row, Col, Moves):-
     append(Moves3, MovesSO, Moves4),
     append(Moves4, MovesO, Moves).
 
-get_inicial_move(Row-Col, BoardState):-
+
+get_initial_move(Row-Col, BoardState, Player):-
+    name_of(Player, bot1),
+    length(BoardState, BoardSize), 
+    random(0, BoardSize, RowOffset),
+    char_code('A', A),
+    RowCode is A + RowOffset,
+    char_code(Row, RowCode),
+    Bruh is RowOffset + 2,
+    random(1, Bruh, Col).
+
+get_initial_move(Row-Col, BoardState, Player):-
     length(BoardState, BoardSize),
     repeat,
     write('Choose an initial position to move: \n'),
@@ -225,13 +236,18 @@ get_inicial_move(Row-Col, BoardState):-
         fail
     ).
 
-get_move(Row-Col, Moves):-
+get_move(Row-Col, Moves, Player):-
+    (name_of(Player, bot);
+    name_of(Player, bot1);
+    name_of(Player, bot2)),
+    choose(Moves, Row-Col).
+get_move(Row-Col, Moves, Player):-
     repeat,
     write('\n\nChoose a position to move to: \n'),
     write('Row: '),
-    read(Row),
+    catch(read(Row), _, (write('Invalid input. Please try again.\n'), fail)),
     write('Column: '),
-    read(Col),
+    catch(read(Col), _, (write('Invalid input. Please try again.\n'), fail)),
     (member(Row-Col, Moves) ->
         ! ;
         write('Invalid move. Please try again.\n'),
@@ -249,7 +265,9 @@ print_turn_before(Player):-
 
 print_turn_after(Player, Row-Col):-
     name_of(Player, Name),
-    format('\n>> ~w chose ~w-~w\n', [Name, Row, Col]).
+    format('\n>> ~w chose ~w-~w\n', [Name, Row, Col]),
+    /* wait for user to press enter */
+    get_char(_).
 
 print_curr_position(Row-Col):-
     format('You are currently on position: ~w-~w\n', [Row, Col]).
