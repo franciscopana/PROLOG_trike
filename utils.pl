@@ -3,7 +3,8 @@
 :- use_module(library(between)).
 
 clear_data :-
-    retractall(name_of(_,_)).
+    retractall(name_of(_,_)),
+    retractall(state_char(_,_)).
 
 % clear_buffer/0
 % Clears input buffer
@@ -104,7 +105,6 @@ print_turn_before(Player):-
 print_turn_after(Player, Row-Col):-
     name_of(Player, Name),
     format('\n>> ~w chose ~w-~w\n', [Name, Row, Col]),
-    /* wait for user to press enter */
     get_char(_).
 
 print_curr_position(Row-Col):-

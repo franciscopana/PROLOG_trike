@@ -30,7 +30,7 @@ game_cycle([BoardState, Player, CurrRow-CurrCol]):-
     get_moves(BoardState, CurrRow, CurrCol, Moves),
     (Moves = [] -> game_over(BoardState, CurrRow, CurrCol, Winner) ; true),
     (Moves \= [] ->
-        print_turn(Player),
+        print_turn_before(Player),
         print_curr_position(CurrRow-CurrCol),
         write('Possible moves: \n'),
         print_moves(Moves),
@@ -53,15 +53,29 @@ move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]):-
     put_piece(BoardState, Row-Col, Player, NewBoardState),
     other_player(Player, NewPlayer).
 
-print_question(Player, Answer):-
+print_question(Player, Switch):-
+    /*if player name is bot ot bot1 or bot2 it should choose switch as a random*/
+    name_of(Player, Bot),
+    (Bot = 'bot'; Bot = 'bot1'; Bot = 'bot2'),
+    random(0, 2, Switch), 
+    (Switch = 1 ->  format('\n>> ~w chose to switch\n', [Bot]);
+                    format('\n>> ~w chose not to switch\n', [Bot])).
+
+print_question(Player, Switch):-
     name_of(Player, Name),
-    format('\nHey ~w, do you want to play as X or O?', [Name]),
-    read(Answer).
+    format('\n>> Hey ~w, do you want to switch roles? y/n: ' , [Name]),
+    read(Answer),
+    (Answer = 'y' ->    Switch = 1, format('\n>> ~w chose to switch\n', [Name]);
+                        Switch = 0, format('\n>> ~w chose not to switch\n', [Name])).
 
 begin_game([BoardState, Player]):-
     display_game(BoardState),
     print_turn_before(Player),
     get_initial_move(Row-Col, BoardState, Player),
-    move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]),
     print_turn_after(Player, Row-Col),
-    game_cycle([NewBoardState, NewPlayer, Row-Col]).
+    other_player(Player, OtherPlayer),
+    print_question(OtherPlayer, Switch),
+    (Switch = 1 ->  move(BoardState, Row-Col, OtherPlayer, [NewBoardState, NewPlayer]),
+                        game_cycle([NewBoardState, Player, Row-Col]);
+                    move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]),
+                        game_cycle([NewBoardState, OtherPlayer, Row-Col])).
