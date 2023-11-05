@@ -1,6 +1,3 @@
-:- use_module(library(lists)).
-:- use_module(library(between)).
-:- use_module(library(system), [now/1]).
 :- consult(utils).
 
 % choose_difficulty(+Bot)
@@ -12,17 +9,17 @@ choose_difficulty(Bot) :-
     get_option(1, 2, 'Difficulty', Option), !,
     asserta((difficulty(Bot, 1))). %asserta((difficulty(Bot, Option)))
 
-% option(+N)
+% menu_option(+N)
 % Main menu options. Each represents a game mode.
-option(1):-
+menu_option(1):-
     nl, write('Human vs. Human\n'), nl,
     get_name(player1), nl, get_name(player2).
-option(2):-
+menu_option(2):-
     write('Human vs. Bot\n'),
     get_name(player1),
     asserta((name_of(player2, 'bot'))), !, 
     choose_difficulty(player2).
-option(3):-
+menu_option(3):-
     write('Bot vs. Bot\n'),
     asserta((name_of(player1, 'bot1'))),
     asserta((name_of(player2, 'bot2'))), !,
@@ -60,15 +57,15 @@ menu:-
 set_mode :-
     menu,
     get_option(1, 3, 'Mode', Option), !,
-    option(Option).
+    menu_option(Option).
 
 % choose_board(-Size)
 % Board size choice
 choose_board(Size):-
-    nl, write('Board size: 7, 8, 9? '),
+    nl, write('Board size: 6 - 9? '),
     repeat,
     read_number(Size),
-    member(Size, [7,8,9]), !.
+    member(Size, [6,7,8,9]), !.
 
 init_state(Size, Board) :-
     init_state(Size, [], Board).
