@@ -1,4 +1,6 @@
 :- use_module(library(between)).
+:- use_module(library(lists)).
+:- use_module(library(random)).
 
 clear_data :-
     retractall(name_of(_,_)).
@@ -82,12 +84,6 @@ in_bounds(Row, Col, BoardSize):-
     Col =< RowCode - Offset + 1.
 
 get_piece(BoardState, Row1,Col1, Piece):-
-    length(BoardState, BoardSize),
-    /*Check if the coordinates are inbound, otherwise return invalid Piece*/
-    (in_bounds(Row1, Col1, BoardSize) ->
-        true ;
-        Piece = invalid
-    ),
     char_code('A', ACode),
     char_code(Row1, RowCode),
     OffsetRow is RowCode - ACode,
@@ -95,16 +91,30 @@ get_piece(BoardState, Row1,Col1, Piece):-
     Col2 is Col1 - 1,
     nth0(Col2, RowList, Piece).
 
+get_adjacent_pieces(BoardState, Line, N, AdjacentPieces):-
+    length(BoardState, BoardSize),
+    char_code(Line, L),
+    L1 is L - 1,
+    PrevN is N - 1,
+    L2 is L + 1,
+    NextN is N + 1,
+    char_code(LineAbove, L1),
+    char_code(LineBelow, L2),
+    (in_bounds(LineAbove, PrevN, BoardSize) -> get_piece(BoardState, LineAbove, PrevN, PieceNO); PieceNO = empty),
+    (in_bounds(LineAbove, N, BoardSize) -> get_piece(BoardState, LineAbove, N, PieceNE); PieceNE = empty),
+    (in_bounds(Line, NextN, BoardSize) -> get_piece(BoardState, Line, NextN, PieceE); PieceE = empty),
+    (in_bounds(LineBelow, NextN, BoardSize) -> get_piece(BoardState, LineBelow, NextN, PieceSE); PieceSE = empty),
+    (in_bounds(LineBelow, N, BoardSize) -> get_piece(BoardState, LineBelow, N, PieceSO); PieceSO = empty),
+    (in_bounds(Line, PrevN, BoardSize) -> get_piece(BoardState, Line, PrevN, PieceO); PieceO = empty),
+    AdjacentPieces = [PieceNO, PieceNE, PieceE, PieceSE, PieceSO, PieceO].
+
 
 get_moves_no(BoardState, Row, Col, Moves):-
     char_code(Row, RowCode),
-    RowCode1 is RowCode - 1, /*diminui a letra em 1 */
-    char_code(Row1, RowCode1),/*Row1 é a letra diminuida*/
-    Col1 is Col - 1, /*Col1 é a coluna diminuida*/
+    RowCode1 is RowCode - 1,
+    char_code(Row1, RowCode1),
+    Col1 is Col - 1,
     
-    /*Now i need to check if the position is empty and valid*/
-    /*If it is, i add it to the list of moves*/
-    /*If it is not, i just return the current moves acumulated and stop*/
     length(BoardState, BoardSize),
     (in_bounds(Row1, Col1, BoardSize) ->
         (get_piece(BoardState, Row1, Col1, Piece),
@@ -216,9 +226,8 @@ get_inicial_move(Row-Col, BoardState):-
     ).
 
 get_move(Row-Col, Moves):-
-    /*ask the user for row and column*/
     repeat,
-    write('\nChoose a position to move to: \n'),
+    write('\n\nChoose a position to move to: \n'),
     write('Row: '),
     read(Row),
     write('Column: '),
@@ -234,9 +243,31 @@ print_moves([Row-Col|Moves]):-
     format('~w-~w   ', [Row, Col]),
     print_moves(Moves).
 
-print_turn(Player):-
+print_turn_before(Player):-
     name_of(Player, Name),
-    format('\nHey ~w, its your turn!\n', [Name]).
+    format('>> Hey ~w, its your turn!\n', [Name]).
+
+print_turn_after(Player, Row-Col):-
+    name_of(Player, Name),
+    format('\n>> ~w chose ~w-~w\n', [Name, Row, Col]).
 
 print_curr_position(Row-Col):-
     format('You are currently on position: ~w-~w\n', [Row, Col]).
+
+
+count(_, [], 0).
+count(X, [X|T], N) :-
+    count(X, T, N1),
+    N is N1 + 1.
+count(X, [Y|T], N) :-
+    X \= Y,
+    count(X, T, N).
+
+
+%% choose(List, Elt) - chooses a random element
+%% in List and unifies it with Elt.
+choose([], []).
+choose(List, Elt) :-
+        length(List, Length),
+        random(0, Length, Index),
+        nth0(Index, List, Elt).

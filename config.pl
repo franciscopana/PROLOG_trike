@@ -68,7 +68,7 @@ choose_board(Size):-
     nl, write('Board size: 7, 8, 9? '),
     repeat,
     read_number(Size),
-    member(Size, [2,7,8,9]), !.
+    member(Size, [7,8,9]), !.
 
 init_state(Size, Board) :-
     init_state(Size, [], Board).
