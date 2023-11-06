@@ -36,6 +36,7 @@ game_over(BoardState, CurrX, CurrY, Winner):-
 % game_cycle(+BoardState, +Player, +CurrRow-CurrCol)
 % Main game cycle
 game_cycle([BoardState, Player, CurrRow-CurrCol]):-
+    write([BoardState,Player, CurrRow-CurrCol]), nl,
     display_game(BoardState),
     get_moves(BoardState, CurrRow, CurrCol, Moves),
     (Moves = [] -> game_over(BoardState, CurrRow, CurrCol, Winner) ; true),
