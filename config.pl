@@ -1,11 +1,11 @@
 :- consult(utils).
 
 % choose_difficulty(+Bot)
-% Choose Bot difficulty (1 or 2)
+% Choose Bot difficulty (1 for Rabdom or 2 for Greedy)
 choose_difficulty(Bot) :-
-    format('Please select ~a status:\n', [Bot]),
-    write('1 - Random\n'),
-    write('2 - Greedy\n'),
+    format('\nPlease select ~a difficulty:\n', [Bot]),
+    write('1 - Easy\n'),
+    write('2 - Hard\n'),
     get_option(1, 2, 'Difficulty', Option), !,
     asserta((difficulty(Bot, Option))).
 
@@ -26,17 +26,7 @@ menu_option(3):-
     choose_difficulty(player1),
     choose_difficulty(player2).
 
-% choose_player(-Player)
-% Unifies player with the player who will start the game
-choose_player(Player):-
-    name_of(player1, Name1),
-    name_of(player2, Name2),
-    nl,
-    format('Who starts playing?\n1 - ~a \n2 - ~a \n', [Name1, Name2]),
-    get_option(1, 2, 'Select', Index),
-    nth1(Index, [player1, player2], Player).
-
-% barca/0
+% trike/0
 % Game header
 trike:-
     clear_console,
@@ -53,7 +43,7 @@ menu:-
     write('3 - Bot vs. Bot\n\n').
 
 % set_mode/0
-% Game mode choice
+% Asks the user to choose a game mode
 set_mode :-
     menu,
     get_option(1, 3, 'Mode', Option), !,
@@ -67,6 +57,8 @@ choose_board(Size):-
     read_number(Size),
     member(Size, [6,7,8,9]), !.
 
+% init_state(+Size, -Board)
+% Initialize Board with an empty board of size Size
 init_state(Size, Board) :-
     init_state(Size, [], Board).
 init_state(0, Acc, Acc).
@@ -78,7 +70,7 @@ init_state(Size, Acc, Board) :-
     init_state(NewSize, [Row|Acc], Board).
 
 % configuration(-GameState)
-% Initialize GameState with Board, first Player
+% Initialize GameState with an empty board and player1 as the starting player
 config([Board,player1]):-
     trike,
     set_mode,

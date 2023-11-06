@@ -3,10 +3,14 @@
 other_player(player1,player2).
 other_player(player2,player1).
 
+% display_board(+BoardState)
+% Displays the game on its current state
 display_game(BoardState):-
     write('\n************************************\n\n'),
     display_board(BoardState), nl.
 
+% check_winner(+BoardState, +Line, +N, -Winner)
+% Unifies the Winner with the player that won the game
 check_winner(BoardState, Line, N, Winner):-
     get_piece(BoardState, Line, N, Piece),
     get_adjacent_pieces(BoardState, Line, N, AdjacentPieces),
@@ -16,15 +20,21 @@ check_winner(BoardState, Line, N, Winner):-
     ; Player1Count < Player2Count -> Winner = player2
     ; Winner = Piece).
 
+% congratulate(+Winner)
+% Prints a congratulatory message to the winner
 congratulate(Winner):-
     name_of(Winner, Name),
     format('\nCongratulations ~w, you won!', [Name]).
 
+% game_over(+BoardState, +CurrX, +CurrY, -Winner)
+% Announces the end of the game and the winner
 game_over(BoardState, CurrX, CurrY, Winner):-
     write('Game Over!\n'),
     check_winner(BoardState, CurrX, CurrY, Winner),
     congratulate(Winner), nl,nl.
 
+% game_cycle(+BoardState, +Player, +CurrRow-CurrCol)
+% Main game cycle
 game_cycle([BoardState, Player, CurrRow-CurrCol]):-
     display_game(BoardState),
     get_moves(BoardState, CurrRow, CurrCol, Moves),
@@ -34,12 +44,14 @@ game_cycle([BoardState, Player, CurrRow-CurrCol]):-
         print_curr_position(CurrRow-CurrCol),
         write('Possible moves: \n'),
         print_moves(Moves),
-        get_move(Row-Col, Moves, Player),
+        get_move(Row-Col, Moves, Player, BoardState),
         move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]),
         print_turn_after(Player, Row-Col),
         game_cycle([NewBoardState, NewPlayer, Row-Col])
     ; true).
 
+% put_piece(+BoardState, +Row-Col, +Piece, -NewBoardState)
+% Puts a piece in the given position
 put_piece(BoardState, Row-Col, Piece, NewBoardState):-
     char_code('A', ACode),
     char_code(Row, RowCode),
@@ -49,39 +61,45 @@ put_piece(BoardState, Row-Col, Piece, NewBoardState):-
     replace(Col1, Piece, RowList, NewRowList),
     replace(OffsetRow, NewRowList, BoardState, NewBoardState).
 
+% move(+BoardState, +Row-Col, +Player, -[NewBoardState, NewPlayer])
+% Moves a piece to the given position and switches the player
 move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]):-
     put_piece(BoardState, Row-Col, Player, NewBoardState),
     other_player(Player, NewPlayer).
 
-print_question(Player, Switch):-
+% print_2nd_round_question(+Player, -Switch)
+% Asks the player if he wants to switch roles
+% Bots choose randomly
+print_2nd_round_question(Player, Switch):-
     name_of(Player, Bot),
     (Bot = 'bot'; Bot = 'bot1'; Bot = 'bot2'),
     random(0, 2, Switch), 
     (Switch = 1 ->  format('\n>> ~w chose to switch\n', [Bot]);
                     format('\n>> ~w chose not to switch\n', [Bot])).
-
-print_question(Player, Switch):-
+print_2nd_round_question(Player, Switch):-
     name_of(Player, Name),
     format('\n>> Hey ~w, do you want to switch roles? y/n: ' , [Name]),
     read(Answer),
     (Answer = 'y' ->    Switch = 1, format('\n>> ~w chose to switch\n', [Name]);
                         Switch = 0, format('\n>> ~w chose not to switch\n', [Name])).
 
+% begin_game(+BoardState, +Player)
+% Starts the game by puting a piece anywhere on the board
+% and asking the secind player if he wants to switch roles
 begin_game([BoardState, Player]):-
     display_game(BoardState),
     print_turn_before(Player),
     get_initial_move(Row-Col, BoardState, Player),
     print_turn_after(Player, Row-Col),
     other_player(Player, OtherPlayer),
-    print_question(OtherPlayer, Switch),
+    print_2nd_round_question(OtherPlayer, Switch),
     (Switch = 1 ->  move(BoardState, Row-Col, OtherPlayer, [NewBoardState, NewPlayer]),
                         game_cycle([NewBoardState, Player, Row-Col]);
                     move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]),
                         game_cycle([NewBoardState, OtherPlayer, Row-Col])).
 
-choose_move(_, Moves, Row-Col, 1, _):-
-    choose(Moves, Row-Col).
-
+% choose_best_move(+Player, +Moves, -Row-Col, +BoardState)
+% Chooses the move which gives the player the most adjacent pieces of its type
 choose_best_move(_, [Move], Move, _).
 choose_best_move(Player, [CurrRow-CurrCol|T], BestMove, BoardState):-
     get_adjacent_pieces(BoardState, CurrRow, CurrCol, AdjacentPieces),
@@ -91,9 +109,17 @@ choose_best_move(Player, [CurrRow-CurrCol|T], BestMove, BoardState):-
     count(Player, PrevAdjacentPieces, PrevPlayerCount),
     (PlayerCount > PrevPlayerCount -> BestMove = CurrRow-CurrCol; BestMove = PrevBestMove).
 
+% choose_move(+Player, +Moves, -Row-Col, +Difficulty, +BoardState)
+% In easy mode, chooses a random move
+choose_move(_, Moves, Row-Col, 1, _):-
+    choose(Moves, Row-Col).
+
+% In hard mode, chooses the best move among the possible ones
 choose_move(Player, Moves, Row-Col, 2, BoardState):-
     choose_best_move(Player, Moves, Row-Col, BoardState).
 
+% get_move(-Row-Col, +Moves, +Player, +BoardState)
+% Bots choose a move automatically, according to the moves available and the difficulty
 get_move(Row-Col, Moves, Player, BoardState):-
     (name_of(Player, bot);
     name_of(Player, bot1);
@@ -101,7 +127,8 @@ get_move(Row-Col, Moves, Player, BoardState):-
     difficulty(Player, Difficulty),
     choose_move(Player, Moves, Row-Col, Difficulty, BoardState).
 
-get_move(Row-Col, Moves, Player, _):-
+% If the player is a human, asks for input
+get_move(Row-Col, Moves, _, _):-
     repeat,
     write('\n\nChoose a position to move to: \n'),
     write('Row: '),
@@ -114,7 +141,8 @@ get_move(Row-Col, Moves, Player, _):-
         fail
     ).
 
-
+% get_initial_move(-Row-Col, +BoardState, +Player)
+% Bots choose a random initial move, anywhere on the board
 get_initial_move(Row-Col, BoardState, Player):-
     name_of(Player, bot1),
     length(BoardState, BoardSize), 
@@ -125,6 +153,7 @@ get_initial_move(Row-Col, BoardState, Player):-
     Bruh is RowOffset + 2,
     random(1, Bruh, Col).
 
+% If the player is a human, asks for input
 get_initial_move(Row-Col, BoardState, Player):-
     length(BoardState, BoardSize),
     repeat,
@@ -138,4 +167,3 @@ get_initial_move(Row-Col, BoardState, Player):-
         write('Invalid move. Please try again.\n'),
         fail
     ).
-    
