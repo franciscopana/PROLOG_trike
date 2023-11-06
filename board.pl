@@ -185,28 +185,3 @@ get_moves(BoardState, Row, Col, Moves):-
     append(Moves2, MovesSE, Moves3),
     append(Moves3, MovesSO, Moves4),
     append(Moves4, MovesO, Moves).
-
-
-get_initial_move(Row-Col, BoardState, Player):-
-    name_of(Player, bot1),
-    length(BoardState, BoardSize), 
-    random(0, BoardSize, RowOffset),
-    char_code('A', A),
-    RowCode is A + RowOffset,
-    char_code(Row, RowCode),
-    Bruh is RowOffset + 2,
-    random(1, Bruh, Col).
-
-get_initial_move(Row-Col, BoardState, Player):-
-    length(BoardState, BoardSize),
-    repeat,
-    write('Choose an initial position to move: \n'),
-    write('Row: '),
-    read(Row),
-    write('Column: '),
-    read(Col),
-    (in_bounds(Row, Col, BoardSize) ->
-        ! ;
-        write('Invalid move. Please try again.\n'),
-        fail
-    ).

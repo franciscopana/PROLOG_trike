@@ -54,7 +54,6 @@ move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]):-
     other_player(Player, NewPlayer).
 
 print_question(Player, Switch):-
-    /*if player name is bot ot bot1 or bot2 it should choose switch as a random*/
     name_of(Player, Bot),
     (Bot = 'bot'; Bot = 'bot1'; Bot = 'bot2'),
     random(0, 2, Switch), 
@@ -79,3 +78,64 @@ begin_game([BoardState, Player]):-
                         game_cycle([NewBoardState, Player, Row-Col]);
                     move(BoardState, Row-Col, Player, [NewBoardState, NewPlayer]),
                         game_cycle([NewBoardState, OtherPlayer, Row-Col])).
+
+choose_move(_, Moves, Row-Col, 1, _):-
+    choose(Moves, Row-Col).
+
+choose_best_move(_, [Move], Move, _).
+choose_best_move(Player, [CurrRow-CurrCol|T], BestMove, BoardState):-
+    get_adjacent_pieces(BoardState, CurrRow, CurrCol, AdjacentPieces),
+    count(Player, AdjacentPieces, PlayerCount),
+    choose_best_move(Player, T, PrevBestMove, BoardState),
+    get_adjacent_pieces(BoardState, PrevBestRow, PrevBestCol, PrevAdjacentPieces),
+    count(Player, PrevAdjacentPieces, PrevPlayerCount),
+    (PlayerCount > PrevPlayerCount -> BestMove = CurrRow-CurrCol; BestMove = PrevBestMove).
+
+choose_move(Player, Moves, Row-Col, 2, BoardState):-
+    choose_best_move(Player, Moves, Row-Col, BoardState).
+
+get_move(Row-Col, Moves, Player, BoardState):-
+    (name_of(Player, bot);
+    name_of(Player, bot1);
+    name_of(Player, bot2)),
+    difficulty(Player, Difficulty),
+    choose_move(Player, Moves, Row-Col, Difficulty, BoardState).
+
+get_move(Row-Col, Moves, Player, _):-
+    repeat,
+    write('\n\nChoose a position to move to: \n'),
+    write('Row: '),
+    catch(read(Row), _, (write('Invalid input. Please try again.\n'), fail)),
+    write('Column: '),
+    catch(read(Col), _, (write('Invalid input. Please try again.\n'), fail)),
+    (member(Row-Col, Moves) ->
+        ! ;
+        write('Invalid move. Please try again.\n'),
+        fail
+    ).
+
+
+get_initial_move(Row-Col, BoardState, Player):-
+    name_of(Player, bot1),
+    length(BoardState, BoardSize), 
+    random(0, BoardSize, RowOffset),
+    char_code('A', A),
+    RowCode is A + RowOffset,
+    char_code(Row, RowCode),
+    Bruh is RowOffset + 2,
+    random(1, Bruh, Col).
+
+get_initial_move(Row-Col, BoardState, Player):-
+    length(BoardState, BoardSize),
+    repeat,
+    write('Choose an initial position to move: \n'),
+    write('Row: '),
+    catch(read(Row), _, (write('Invalid input. Please try again.\n'), fail)),
+    write('Column: '),
+    catch(read(Col), _, (write('Invalid input. Please try again.\n'), fail)),
+    (in_bounds(Row, Col, BoardSize) ->
+        ! ;
+        write('Invalid move. Please try again.\n'),
+        fail
+    ).
+    

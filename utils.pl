@@ -74,23 +74,6 @@ swap_minimax(max, min).
 eval(min, [Value|_], Result):- Result is -Value.
 eval(max, Values, Value):- last(Values, Value).
 
-get_move(Row-Col, Moves, Player):-
-    (name_of(Player, bot);
-    name_of(Player, bot1);
-    name_of(Player, bot2)),
-    choose(Moves, Row-Col).
-get_move(Row-Col, Moves, Player):-
-    repeat,
-    write('\n\nChoose a position to move to: \n'),
-    write('Row: '),
-    catch(read(Row), _, (write('Invalid input. Please try again.\n'), fail)),
-    write('Column: '),
-    catch(read(Col), _, (write('Invalid input. Please try again.\n'), fail)),
-    (member(Row-Col, Moves) ->
-        ! ;
-        write('Invalid move. Please try again.\n'),
-        fail
-    ).
 
 print_moves([]).
 print_moves([Row-Col|Moves]):-
